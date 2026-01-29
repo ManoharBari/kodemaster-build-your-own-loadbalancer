@@ -1,0 +1,14 @@
+{
+  "lbPORT": 7000,
+  "lbAlgo": "rr",
+  "be_servers": [
+    {
+      "domain": "http://localhost:8081",
+      "weight": 1
+    },
+    {
+      "domain": "http://localhost:8082",
+      "weight": 1
+    }
+  ]
+}
