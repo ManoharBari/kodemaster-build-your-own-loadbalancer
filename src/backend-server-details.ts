@@ -26,9 +26,9 @@ export class BackendServerDetails implements IBackendServerDetails {
 
   private status: BEServerHealth;
 
-  constructor(url: string, serverWeight: number = 1) {
+  constructor(url: string, weight: number = 1) {
     this.url = url;
-    this.serverWeight = serverWeight;
+    this.serverWeight = weight;
     this.status = BEServerHealth.UNHEALTHY;
     this.requestsServed = 0;
   }
@@ -47,5 +47,33 @@ export class BackendServerDetails implements IBackendServerDetails {
 
   public resetMetrics(): void {
     this.requestsServed = 0;
+  }
+
+  // Additional helper methods
+  public getRequestsServed(): number {
+    return this.requestsServed;
+  }
+
+  public isHealthy(): boolean {
+    return this.status === BEServerHealth.HEALTHY;
+  }
+
+  public getMetrics(): {
+    url: string;
+    status: BEServerHealth;
+    weight: number;
+    requestsServed: number;
+  } {
+    return {
+      url: this.url,
+      status: this.status,
+      weight: this.serverWeight,
+      requestsServed: this.requestsServed,
+    };
+  }
+
+  public toString(): string {
+    const statusEmoji = this.status === BEServerHealth.HEALTHY ? "✅" : "❌";
+    return `${statusEmoji} ${this.url} [Weight: ${this.serverWeight}, Requests: ${this.requestsServed}]`;
   }
 }
