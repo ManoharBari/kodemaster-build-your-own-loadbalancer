@@ -20,11 +20,11 @@ export interface IBackendServerDetails {
  * BackendServerDetails - Encapsulates the state and metrics of a backend server
  */
 export class BackendServerDetails implements IBackendServerDetails {
-  public readonly url: string;
-  public readonly serverWeight: number;
-  public requestsServed: number;
-
+  url: string;
+  serverWeight: number;
+  
   private status: BEServerHealth;
+  private requestsServed: number;
 
   constructor(url: string, weight: number = 1) {
     this.url = url;
@@ -33,32 +33,32 @@ export class BackendServerDetails implements IBackendServerDetails {
     this.requestsServed = 0;
   }
 
-  public getStatus(): BEServerHealth {
+  getStatus(): BEServerHealth {
     return this.status;
   }
 
-  public setStatus(status: BEServerHealth): void {
+  setStatus(status: BEServerHealth): void {
     this.status = status;
   }
 
-  public incrementRequestsServed(): void {
+  incrementRequestsServed(): void {
     this.requestsServed++;
   }
 
-  public resetMetrics(): void {
+  resetMetrics(): void {
     this.requestsServed = 0;
   }
 
-  // Additional helper methods
-  public getRequestsServed(): number {
+  // Additional helper methods for index.ts
+  getRequestsServed(): number {
     return this.requestsServed;
   }
 
-  public isHealthy(): boolean {
+  isHealthy(): boolean {
     return this.status === BEServerHealth.HEALTHY;
   }
 
-  public getMetrics(): {
+  getMetrics(): {
     url: string;
     status: BEServerHealth;
     weight: number;
@@ -72,7 +72,7 @@ export class BackendServerDetails implements IBackendServerDetails {
     };
   }
 
-  public toString(): string {
+  toString(): string {
     const statusEmoji = this.status === BEServerHealth.HEALTHY ? "✅" : "❌";
     return `${statusEmoji} ${this.url} [Weight: ${this.serverWeight}, Requests: ${this.requestsServed}]`;
   }
