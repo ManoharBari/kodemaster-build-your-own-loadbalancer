@@ -14,7 +14,7 @@ const backendServers: BackendServerDetails[] = config.be_servers.map(
   (server) => new BackendServerDetails(server.domain, server.weight),
 );
 
-console.log("\n📋 Backend Servers Initialized:");
+console.log("Backend Servers Initialized:");
 backendServers.forEach((server, index) => {
   console.log(`   ${index + 1}. ${server.toString()}`);
 });
