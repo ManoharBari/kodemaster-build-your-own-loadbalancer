@@ -22,7 +22,7 @@ export interface IBackendServerDetails {
 export class BackendServerDetails implements IBackendServerDetails {
   url: string;
   serverWeight: number;
-  
+
   private status: BEServerHealth;
   private requestsServed: number;
 
@@ -42,7 +42,7 @@ export class BackendServerDetails implements IBackendServerDetails {
   }
 
   incrementRequestsServed(): void {
-    this.requestsServed++;
+    this.requestsServed += 1;
   }
 
   resetMetrics(): void {
