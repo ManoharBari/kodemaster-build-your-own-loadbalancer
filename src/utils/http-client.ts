@@ -14,9 +14,12 @@ import axiosRetry, { IAxiosRetryConfig } from "axios-retry";
 // Create axios instance with global configuration
 const httpClient: AxiosInstance = axios.create({
   timeout: 5000, // 5 seconds global timeout
-  headers: {
-    "Content-Type": "application/json",
-  },
+  transformResponse: [
+    (data) => {
+      // Return data as-is without JSON parsing
+      return data;
+    },
+  ],
 });
 
 // Configure axios-retry with exponential backoff
