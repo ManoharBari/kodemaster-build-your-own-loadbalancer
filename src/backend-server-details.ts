@@ -24,13 +24,13 @@ export class BackendServerDetails implements IBackendServerDetails {
   serverWeight: number;
 
   private status: BEServerHealth;
-  private requestsServed: number;
+  requestsServedCount: number;
 
   constructor(url: string, weight: number = 1) {
     this.url = url;
     this.serverWeight = weight;
     this.status = BEServerHealth.UNHEALTHY;
-    this.requestsServed = 0;
+    this.requestsServedCount = 0;
   }
 
   getStatus(): BEServerHealth {
@@ -42,16 +42,16 @@ export class BackendServerDetails implements IBackendServerDetails {
   }
 
   incrementRequestsServed(): void {
-    this.requestsServed += 1;
+    this.requestsServedCount++;
   }
 
   resetMetrics(): void {
-    this.requestsServed = 0;
+    this.requestsServedCount = 0;
   }
 
   // Additional helper methods for index.ts
   getRequestsServed(): number {
-    return this.requestsServed;
+    return this.requestsServedCount;
   }
 
   isHealthy(): boolean {
@@ -68,12 +68,12 @@ export class BackendServerDetails implements IBackendServerDetails {
       url: this.url,
       status: this.status,
       weight: this.serverWeight,
-      requestsServed: this.requestsServed,
+      requestsServed: this.requestsServedCount,
     };
   }
 
   toString(): string {
     const statusEmoji = this.status === BEServerHealth.HEALTHY ? "✅" : "❌";
-    return `${statusEmoji} ${this.url} [Weight: ${this.serverWeight}, Requests: ${this.requestsServed}]`;
+    return `${statusEmoji} ${this.url} [Weight: ${this.serverWeight}, Requests: ${this.requestsServedCount}]`;
   }
 }
