@@ -1,4 +1,5 @@
 import { BEServerHealth } from "./utils/enums";
+import { HttpClient } from "./utils/http-client";
 
 /**
  * Interface defining the contract for Backend Server Details
@@ -75,5 +76,40 @@ export class BackendServerDetails implements IBackendServerDetails {
   toString(): string {
     const statusEmoji = this.status === BEServerHealth.HEALTHY ? "✅" : "❌";
     return `${statusEmoji} ${this.url} [Weight: ${this.serverWeight}, Requests: ${this.requestsServedCount}]`;
+  }
+
+  /**
+   * Pings the backend server to check its health
+   * Uses the resilient HttpClient with automatic retries
+   *
+   * @returns Promise that resolves to true if healthy, false if unhealthy
+   */
+  async ping(): Promise<boolean> {
+    try {
+      console.log(`Pinging server: ${this.url}/ping`);
+
+      // Make GET request to /ping endpoint with resilient client
+      const response = await HttpClient.get(`${this.url}/ping`);
+
+      // If we get a successful response, mark as HEALTHY
+      if (response.status >= 200 && response.status < 300) {
+        console.log(`✅ Ping successful for ${this.url}`);
+        this.setStatus(BEServerHealth.HEALTHY);
+        return true;
+      }
+
+      // Unexpected status code
+      console.log(`⚠️  Unexpected status ${response.status} from ${this.url}`);
+      this.setStatus(BEServerHealth.UNHEALTHY);
+      return false;
+    } catch (error) {
+      // After all retries failed, mark as UNHEALTHY
+      console.error(
+        `❌ Ping failed for ${this.url}:`,
+        (error as Error).message,
+      );
+      this.setStatus(BEServerHealth.UNHEALTHY);
+      return false;
+    }
   }
 }
