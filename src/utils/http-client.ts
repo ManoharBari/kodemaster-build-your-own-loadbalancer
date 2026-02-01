@@ -31,7 +31,6 @@ const retryConfig: IAxiosRetryConfig = {
    */
   retryDelay: (retryCount: number) => {
     const delay = 200 * Math.pow(2, retryCount - 1);
-    console.log(`⏳ Retry attempt ${retryCount}, waiting ${delay}ms...`);
     return delay;
   },
 
@@ -42,31 +41,17 @@ const retryConfig: IAxiosRetryConfig = {
   retryCondition: (error: AxiosError) => {
     // Network error (no response received)
     if (axiosRetry.isNetworkError(error)) {
-      console.log(`🔄 Network error detected, will retry...`);
       return true;
     }
 
-    // Server error (5xx status codes)
-    if (axiosRetry.isRetryableError(error)) {
-      const status = error.response?.status;
-      if (status && status >= 500 && status < 600) {
-        console.log(`🔄 Server error ${status} detected, will retry...`);
-        return true;
-      }
-    }
-
-    // Don't retry on 4xx client errors or other errors
+    // Server error (5xx status codes) - includes 500, 502, 503, 504, etc.
     const status = error.response?.status;
-    if (status && status >= 400 && status < 500) {
-      console.log(`❌ Client error ${status}, not retrying`);
+    if (status && status >= 500 && status < 600) {
+      return true;
     }
 
+    // Don't retry on 4xx client errors or 2xx success
     return false;
-  },
-
-  // Log when all retries are exhausted
-  onRetry: (retryCount: number, error: AxiosError, requestConfig: any) => {
-    console.log(`🔁 Retry ${retryCount} for ${requestConfig.url}`);
   },
 };
 
