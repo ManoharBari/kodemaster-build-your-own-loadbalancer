@@ -3,27 +3,6 @@ import axiosRetry from "axios-retry";
 
 const httpClient = axios.create({
   timeout: 5000,
-  transformResponse: [
-    (data) => {
-      let str = data;
-      // 1. Force string conversion
-      if (Buffer.isBuffer(data)) {
-        str = data.toString();
-      }
-
-      if (typeof str === 'string') {
-        // 2. Aggressive matching for the test case
-        if (str.includes("Pong")) return "Pong";
-
-        try {
-          return JSON.parse(str);
-        } catch (e) {
-          return str.trim();
-        }
-      }
-      return data;
-    },
-  ],
 });
 
 axiosRetry(httpClient, {
