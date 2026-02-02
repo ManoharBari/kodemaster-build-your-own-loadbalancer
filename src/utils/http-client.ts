@@ -18,12 +18,15 @@ const httpClient = axios.create({
         console.log("[DEBUG] Converted Buffer to string:", data);
       }
 
+
       if (typeof data === "string") {
         try {
           return JSON.parse(data);
         } catch (e) {
           const trimmed = data.trim();
-          console.log("[DEBUG] JSON parse failed, returning trimmed:", trimmed);
+          console.log("[DEBUG] trimmed === 'Pong':", trimmed === 'Pong');
+          console.log("[DEBUG] trimmed char codes:", trimmed.split('').map(c => c.charCodeAt(0)));
+          console.log("[DEBUG] trimmed value (JSON):", JSON.stringify(trimmed));
           return trimmed;
         }
       }
