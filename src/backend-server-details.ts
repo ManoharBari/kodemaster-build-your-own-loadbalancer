@@ -78,12 +78,7 @@ export class BackendServerDetails implements IBackendServerDetails {
     return `${statusEmoji} ${this.url} [Weight: ${this.serverWeight}, Requests: ${this.requestsServedCount}]`;
   }
 
-  /**
-   * Pings the backend server to check its health
-   * Uses the resilient HttpClient with automatic retries
-   *
-   * @returns Promise that resolves to true if healthy, false if unhealthy
-   */
+
   async ping(): Promise<boolean> {
     try {
       // Make GET request to /ping endpoint with resilient client
