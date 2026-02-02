@@ -10,7 +10,6 @@ export interface IBackendServer {
   weight: number;
 }
 
-
 /**
  * Interface representing the complete configuration
  */
