@@ -42,4 +42,15 @@ axiosRetry(httpClient, {
     axiosRetry.isNetworkError(error) || axiosRetry.isRetryableError(error),
 });
 
+httpClient.interceptors.response.use(
+  (response) => {
+    console.log("[DEBUG] Interceptor Final Data:", JSON.stringify(response.data));
+    console.log("[DEBUG] Interceptor Data Type:", typeof response.data);
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 export const HttpClient = httpClient;
