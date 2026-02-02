@@ -29,4 +29,3 @@ axiosRetry(httpClient, {
 });
 
 export const HttpClient = httpClient;
-export default httpClient;
