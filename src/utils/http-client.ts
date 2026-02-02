@@ -4,18 +4,17 @@ import axiosRetry from "axios-retry";
 const httpClient = axios.create({
   timeout: 5000,
   transformResponse: [
-    function (data) {
-      // Handle the response data explicitly
+    (data) => {
+      if (Buffer.isBuffer(data)) {
+        data = data.toString();
+      }
       if (typeof data === "string") {
-        // Try to parse as JSON first
         try {
           return JSON.parse(data);
         } catch (e) {
-          // If it's not JSON, return the string as-is
-          return data;
+          return data.trim();
         }
       }
-      // For non-string data, return as-is
       return data;
     },
   ],
