@@ -10,6 +10,7 @@ export interface IBackendServer {
   weight: number;
 }
 
+
 /**
  * Interface representing the complete configuration
  */
@@ -30,7 +31,7 @@ export class Config {
   /**
    * Private constructor to enforce Singleton pattern
    */
-  private constructor() {}
+  private constructor() { }
 
   /**
    * Joi validation schema for the configuration
@@ -106,7 +107,7 @@ export class Config {
 
       // Read the configuration file
       const fileContent = fs.readFileSync(absolutePath, 'utf-8');
-      
+
       // Parse JSON
       let configData: any;
       try {
