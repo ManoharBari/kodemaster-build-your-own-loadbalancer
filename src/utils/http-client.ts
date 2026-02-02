@@ -1,5 +1,5 @@
-import axios from 'axios';
-import axiosRetry from 'axios-retry';
+import axios from "axios";
+import axiosRetry from "axios-retry";
 
 // Create axios instance
 const httpClient = axios.create({
@@ -13,7 +13,9 @@ axiosRetry(httpClient, {
     return 200 * Math.pow(2, retryCount - 1);
   },
   retryCondition: (error) => {
-    return axiosRetry.isNetworkError(error) || axiosRetry.isRetryableError(error);
+    return (
+      axiosRetry.isNetworkError(error) || axiosRetry.isRetryableError(error)
+    );
   },
 });
 
