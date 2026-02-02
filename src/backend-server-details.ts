@@ -78,7 +78,6 @@ export class BackendServerDetails implements IBackendServerDetails {
     return `${statusEmoji} ${this.url} [Weight: ${this.serverWeight}, Requests: ${this.requestsServedCount}]`;
   }
 
-
   async ping(): Promise<boolean> {
     try {
       // Make GET request to /ping endpoint with resilient client
