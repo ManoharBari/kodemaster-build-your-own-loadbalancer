@@ -2,6 +2,7 @@ import express, { Express } from "express";
 import { Server } from "http";
 import { Config } from "./utils/config";
 import { BackendServerDetails } from "./backend-server-details";
+import { HttpClient } from "./utils/http-client";
 
 export class LBServer {
   public app: Express;
@@ -10,12 +11,11 @@ export class LBServer {
   private config: Config;
 
   constructor() {
-    // Load configuration
     this.config = Config.load();
-    // Initialize Express application
     this.app = express();
 
-    // Initialize backend servers from config
+    this.setupProxyHandler();
+
     this.backendServers = this.config.backendServers.map(
       (serverConfig) => new BackendServerDetails(serverConfig.url),
     );
@@ -37,13 +37,46 @@ export class LBServer {
     });
   }
 
+  private setupProxyHandler(): void {
+    this.app.use(express.json());
+    this.app.use(express.raw({ type: "*/*", limit: "10mb" }));
+
+    this.app.use(async (req, res) => {
+      try {
+        const server = this.backendServers[0];
+
+        server.incrementRequestsServed();
+
+        // ✅ Use HttpClient directly - it's already an instance!
+        const response = await HttpClient.request({
+          method: req.method,
+          url: `${server.url}${req.url}`,
+          headers: req.headers,
+          data: req.body,
+        });
+
+        // Forward response
+        Object.entries(response.headers).forEach(([key, value]) => {
+          if (value !== undefined) {
+            res.setHeader(key, value);
+          }
+        });
+        res.status(response.status).send(response.data);
+      } catch (error: any) {
+        res.status(500).json({
+          error: "Backend server error",
+          message: error.message,
+        });
+      }
+    });
+  }
+
   public close(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (this.server) {
         this.server.close((err) => {
-          if (err) {
-            reject(err);
-          } else {
+          if (err) reject(err);
+          else {
             console.log("🛑 Load Balancer shut down gracefully");
             resolve();
           }
