@@ -3,18 +3,33 @@ import { Server } from "http";
 import { Config } from "./utils/config";
 import { BackendServerDetails } from "./backend-server-details";
 import { HttpClient } from "./utils/http-client";
+import { ILbAlgorithm } from "./lb-algos/lb-algo.interface";
 
 export class LBServer {
   public app: Express;
   public server: Server | null = null;
   public backendServers: BackendServerDetails[];
   private config: Config;
+  private lbAlgo!: ILbAlgorithm;
 
-  constructor() {
+  constructor(config: any) {
     this.config = Config.load();
     this.app = express();
 
     this.setupProxyHandler();
+
+    switch (config.lbAlgo) {
+      case "round-robin":
+        // this.lbAlgo = new RoundRobinAlgorithm();
+        break;
+
+      case "random":
+        // this.lbAlgo = new RandomAlgorithm();
+        break;
+
+      default:
+        throw new Error("Invalid load balancing algorithm");
+    }
 
     this.backendServers = this.config.backendServers.map(
       (serverConfig) => new BackendServerDetails(serverConfig.url),
@@ -24,7 +39,7 @@ export class LBServer {
       `✅ Initialized ${this.backendServers.length} backend server(s)`,
     );
     this.backendServers.forEach((server, index) => {
-      console.log(`   [${index + 1}] ${server.url}`);
+      console.log(`[${index + 1}] ${server.url}`);
     });
   }
 
