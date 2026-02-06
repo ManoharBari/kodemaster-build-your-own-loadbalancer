@@ -11,8 +11,7 @@ export class LBServer {
 
   constructor() {
     // Load configuration
-    this.config = new Config();
-
+    this.config = Config.load();
     // Initialize Express application
     this.app = express();
 
