@@ -29,14 +29,11 @@ export class HealthCheck {
       }
     }
   }
-
   public handleFailure(server: BackendServerDetails) {
-    console.log(`⚠️ Passive failure detected on ${server.url}`);
+    console.log(`UNHEALTHY: Passive failure on ${server.url}`);
 
-    // Mark server unhealthy
     server.setStatus(BEServerHealth.UNHEALTHY);
 
-    // Remove from healthy servers list
     this.healthyServers = this.healthyServers.filter(
       (s) => s.url !== server.url,
     );

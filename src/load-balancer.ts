@@ -100,7 +100,8 @@ export class LBServer {
         });
         res.status(response.status).send(response.data);
       } catch (error: any) {
-        // Detect fatal network errors
+        console.error(`Passive failure: ${this.server.url}`, error.code);
+
         const isNetworkError =
           !error.response &&
           ["ECONNREFUSED", "ECONNRESET", "ENOTFOUND", "ETIMEDOUT"].includes(
@@ -108,7 +109,6 @@ export class LBServer {
           );
 
         if (isNetworkError) {
-          console.log(`💀 Marking ${this?.server?.url} as UNHEALTHY`);
           this.healthCheck.handleFailure(this.server);
         }
 
