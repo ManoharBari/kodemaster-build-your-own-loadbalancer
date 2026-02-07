@@ -17,7 +17,7 @@ export class HealthCheck {
     this.healthyServers = healthyServers;
 
     // Read interval from config (default: 10 seconds)
-    this.intervalMs = 10 * 1000;
+    this.intervalMs = (config.health_check_interval ?? 10) * 1000;
   }
 
   start(): void {
