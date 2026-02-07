@@ -100,10 +100,19 @@ export class LBServer {
         });
         res.status(response.status).send(response.data);
       } catch (error: any) {
-        res.status(500).json({
-          error: "Backend server error",
-          message: error.message,
-        });
+        // Detect fatal network errors
+        const isNetworkError =
+          !error.response &&
+          ["ECONNREFUSED", "ECONNRESET", "ENOTFOUND", "ETIMEDOUT"].includes(
+            error.code,
+          );
+
+        if (isNetworkError) {
+          console.log(`💀 Marking ${this?.server?.url} as UNHEALTHY`);
+          this.healthCheck.handleFailure(this.server);
+        }
+
+        return res.status(502).send("Bad gateway");
       }
     });
   }
