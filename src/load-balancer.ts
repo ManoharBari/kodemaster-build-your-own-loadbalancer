@@ -27,8 +27,9 @@ export class LBServer {
     this.healthCheck = new HealthCheck(
       this.backendServers,
       this.healthyServers,
+      this.config,
     );
-    
+
     this.setupProxyHandler();
 
     switch (config.lbAlgo) {
@@ -61,6 +62,7 @@ export class LBServer {
   }
 
   public init(): void {
+    this.healthCheck.start();
     this.server = this.app.listen(this.config.lbPort, () => {
       console.log(`🚀 Load Balancer running on port ${this.config.lbPort}`);
       console.log(
@@ -106,6 +108,7 @@ export class LBServer {
   public close(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (this.server) {
+        this.healthCheck.stop();
         this.server.close((err) => {
           if (err) reject(err);
           else {

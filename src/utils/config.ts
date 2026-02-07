@@ -38,6 +38,7 @@ export class Config {
   // Public properties for LBServer compatibility
   public lbPort: number = 7000;
   public backendServers: BackendServerConfig[] = [];
+  public health_check_interval?: number = 10;
 
   /**
    * Private constructor to enforce Singleton pattern
