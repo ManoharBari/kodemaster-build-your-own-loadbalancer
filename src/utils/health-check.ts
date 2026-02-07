@@ -11,13 +11,13 @@ export class HealthCheck {
   constructor(
     allServers: BackendServerDetails[],
     healthyServers: BackendServerDetails[],
-    config: Config,
+    config?: Config,
   ) {
     this.allServers = allServers;
     this.healthyServers = healthyServers;
 
     // Read interval from config (default: 10 seconds)
-    this.intervalMs = (config.health_check_interval ?? 10) * 1000;
+    this.intervalMs = (config?.health_check_interval ?? 10) * 1000;
   }
 
   start(): void {

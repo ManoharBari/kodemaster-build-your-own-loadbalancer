@@ -27,7 +27,7 @@ export class LBServer {
     this.healthCheck = new HealthCheck(
       this.backendServers,
       this.healthyServers,
-      this.config,
+      config,
     );
 
     this.setupProxyHandler();
