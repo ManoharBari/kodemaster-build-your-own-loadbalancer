@@ -6,6 +6,7 @@ import { HttpClient } from "./utils/http-client";
 import { ILbAlgorithm } from "./lb-algos/lb-algo.interface";
 import { RoundRobin } from "./lb-algos/rr";
 import { WeightedRoundRobin } from "./lb-algos/wrr";
+import { HealthCheck } from "./utils/health-check";
 
 export class LBServer {
   public app: Express;
@@ -13,11 +14,21 @@ export class LBServer {
   public backendServers: BackendServerDetails[];
   private config: Config;
   private lbAlgo!: ILbAlgorithm;
+  private healthyServers: BackendServerDetails[];
+  private healthCheck: HealthCheck;
 
   constructor(config: any, servers: BackendServerDetails[]) {
     this.config = Config.load();
     this.app = express();
 
+    this.backendServers = servers;
+    this.healthyServers = [];
+
+    this.healthCheck = new HealthCheck(
+      this.backendServers,
+      this.healthyServers,
+    );
+    
     this.setupProxyHandler();
 
     switch (config.lbAlgo) {
