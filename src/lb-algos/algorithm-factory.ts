@@ -1,4 +1,5 @@
 import { ILbAlgorithm } from "./lb-algo.interface";
+import { WeightedRoundRobin } from "./wrr";
 
 export function createLbAlgorithm(algoName: string): ILbAlgorithm {
   switch (algoName) {
@@ -9,6 +10,9 @@ export function createLbAlgorithm(algoName: string): ILbAlgorithm {
     case "random":
       // return new RandomAlgorithm();
       throw new Error("Random not implemented yet");
+
+    case "wrr":
+    //   return new WeightedRoundRobin(servers);
 
     default:
       throw new Error("Unknown load balancing algorithm");

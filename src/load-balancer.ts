@@ -5,6 +5,7 @@ import { BackendServerDetails } from "./backend-server-details";
 import { HttpClient } from "./utils/http-client";
 import { ILbAlgorithm } from "./lb-algos/lb-algo.interface";
 import { RoundRobin } from "./lb-algos/rr";
+import { WeightedRoundRobin } from "./lb-algos/wrr";
 
 export class LBServer {
   public app: Express;
@@ -26,6 +27,10 @@ export class LBServer {
 
       case "random":
         // this.lbAlgo = new RandomAlgorithm();
+        break;
+
+      case "wrr":
+        this.lbAlgo = new WeightedRoundRobin(servers);
         break;
 
       default:
