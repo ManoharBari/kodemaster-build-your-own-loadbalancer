@@ -4,6 +4,7 @@ import { Config } from "./utils/config";
 import { BackendServerDetails } from "./backend-server-details";
 import { HttpClient } from "./utils/http-client";
 import { ILbAlgorithm } from "./lb-algos/lb-algo.interface";
+import { RoundRobin } from "./lb-algos/rr";
 
 export class LBServer {
   public app: Express;
@@ -12,7 +13,7 @@ export class LBServer {
   private config: Config;
   private lbAlgo!: ILbAlgorithm;
 
-  constructor(config: any) {
+  constructor(config: any, servers: BackendServerDetails[]) {
     this.config = Config.load();
     this.app = express();
 
@@ -20,7 +21,7 @@ export class LBServer {
 
     switch (config.lbAlgo) {
       case "round-robin":
-        // this.lbAlgo = new RoundRobinAlgorithm();
+        this.lbAlgo = new RoundRobin(servers);
         break;
 
       case "random":
