@@ -7,6 +7,7 @@ import { ILbAlgorithm } from "./lb-algos/lb-algo.interface";
 import { RoundRobin } from "./lb-algos/rr";
 import { WeightedRoundRobin } from "./lb-algos/wrr";
 import { HealthCheck } from "./utils/health-check";
+import { createLbAlgorithm } from "./lb-algos/algorithm-factory";
 
 export class LBServer {
   public app: Express;
@@ -30,6 +31,8 @@ export class LBServer {
       config,
     );
 
+    // Pass healthyServers, not backendServers
+    this.lbAlgo = createLbAlgorithm(config.lbAlgo, this.healthyServers);
     this.setupProxyHandler();
 
     switch (config.lbAlgo) {

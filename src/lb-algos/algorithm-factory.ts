@@ -1,7 +1,10 @@
 import { ILbAlgorithm } from "./lb-algo.interface";
 import { WeightedRoundRobin } from "./wrr";
 
-export function createLbAlgorithm(algoName: string): ILbAlgorithm {
+export function createLbAlgorithm(
+  algoName: string,
+  healthyServers: any,
+): ILbAlgorithm {
   switch (algoName) {
     case "round-robin":
       // return new RoundRobinAlgorithm();

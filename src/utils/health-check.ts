@@ -20,8 +20,28 @@ export class HealthCheck {
     this.intervalMs = Config?.config?.health_check_interval ?? 10000;
   }
 
+  public updateHealthyServers(): void {
+    this.healthyServers.length = 0;
+
+    for (const server of this.allServers) {
+      if (server.getStatus() === BEServerHealth.HEALTHY) {
+        this.healthyServers.push(server);
+      }
+    }
+  }
+
   private async checkOnce(): Promise<void> {
-    await Promise.all(this.allServers.map((server) => server.ping()));
+    await Promise.all(
+      this.allServers.map(async (server) => {
+        try {
+          await server.ping();
+        } catch {
+          // Ignore ping errors, status will reflect failure
+        }
+      }),
+    );
+
+    this.updateHealthyServers();
   }
 
   start(): void {
