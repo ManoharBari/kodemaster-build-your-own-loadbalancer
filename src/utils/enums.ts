@@ -5,10 +5,10 @@ export enum BEServerHealth {
   /**
    * Server is healthy and can receive requests
    */
-  HEALTHY = 'HEALTHY',
+  HEALTHY = 'healthy',
   
   /**
    * Server is unhealthy and should not receive requests
    */
-  UNHEALTHY = 'UNHEALTHY'
+  UNHEALTHY = 'unhealthy'
 }
