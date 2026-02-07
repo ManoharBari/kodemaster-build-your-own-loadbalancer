@@ -17,7 +17,11 @@ export class HealthCheck {
     this.healthyServers = healthyServers;
 
     // Read interval from config (default: 10 seconds)
-    this.intervalMs = (config?.health_check_interval ?? 10) * 1000;
+    this.intervalMs = config?.health_check_interval ?? 10_000;
+  }
+
+  private async checkOnce(): Promise<void> {
+    await Promise.all(this.allServers.map((server) => server.ping()));
   }
 
   start(): void {
@@ -38,6 +42,8 @@ export class HealthCheck {
             this.healthyServers.push(server);
           }
         }
+
+        this.checkOnce().catch(() => {});
       } catch (err) {
         console.error("Health check error:", err);
       }
