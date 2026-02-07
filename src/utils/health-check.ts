@@ -17,7 +17,7 @@ export class HealthCheck {
     this.healthyServers = healthyServers;
 
     // Read interval from config (default: 10 seconds)
-    this.intervalMs = config?.health_check_interval ?? 10_000;
+    this.intervalMs = Config?.config?.health_check_interval ?? 10000;
   }
 
   private async checkOnce(): Promise<void> {
