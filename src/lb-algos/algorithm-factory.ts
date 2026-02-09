@@ -15,7 +15,8 @@ export function createLbAlgorithm(
       throw new Error("Random not implemented yet");
 
     case "wrr":
-    //   return new WeightedRoundRobin(servers);
+      //   return new WeightedRoundRobin(servers);
+      throw new Error("WeightedRoundRobin not implemented yet");
 
     default:
       throw new Error("Unknown load balancing algorithm");
