@@ -6,11 +6,11 @@ export function createLbAlgorithm(
   healthyServers: any,
 ): ILbAlgorithm {
   switch (algoName) {
-    case "round-robin":
+    case "rr":
       // return new RoundRobinAlgorithm();
       throw new Error("Round Robin not implemented yet");
 
-    case "random":
+    case "r":
       // return new RandomAlgorithm();
       throw new Error("Random not implemented yet");
 

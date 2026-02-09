@@ -36,11 +36,11 @@ export class LBServer {
     this.setupProxyHandler();
 
     switch (this.config.lbAlgo) {
-      case "round-robin":
+      case "rr":
         this.lbAlgo = new RoundRobin(servers);
         break;
 
-      case "random":
+      case "r":
         // this.lbAlgo = new RandomAlgorithm();
         break;
 
