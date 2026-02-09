@@ -80,41 +80,63 @@ export class LBServer {
     this.app.use(express.raw({ type: "*/*", limit: "10mb" }));
 
     this.app.use(async (req, res) => {
-      try {
-        const server = this.backendServers[0];
+      const MAX_RETRIES = 3;
+      let retries = 0;
+      let lastError: any = null;
 
-        server.incrementRequestsServed();
+      while (retries < MAX_RETRIES) {
+        const server = this.lbAlgo.nextServer();
 
-        // ✅ Use HttpClient directly - it's already an instance!
-        const response = await HttpClient.request({
-          method: req.method,
-          url: `${server.url}${req.url}`,
-          headers: req.headers,
-          data: req.body,
-        });
-
-        // Forward response
-        Object.entries(response.headers).forEach(([key, value]) => {
-          if (value !== undefined) {
-            res.setHeader(key, value);
-          }
-        });
-        res.status(response.status).send(response.data);
-      } catch (err: any) {
-        console.error("[Passive] Proxy error:", err.code || err.message);
-
-        // Treat as fatal network error
-        if (
-          err.code === "ECONNREFUSED" ||
-          err.code === "ECONNRESET" ||
-          err.code === "ETIMEDOUT" ||
-          err.code === "ENOTFOUND"
-        ) {
-          this.healthCheck.handleFailure(this.server);
+        if (!server) {
+          console.error("[LB] No healthy servers available");
+          break;
         }
 
-        res.status(502).send("Bad Gateway");
+        try {
+          console.log(`[LB] Attempt ${retries + 1} → ${server.url}`);
+
+          server.incrementRequestsServed();
+
+          const response = await HttpClient.request({
+            method: req.method,
+            url: `${server.url}${req.url}`,
+            headers: req.headers,
+            data: req.body,
+          });
+
+          // Forward response
+          Object.entries(response.headers).forEach(([key, value]) => {
+            if (value !== undefined) {
+              res.setHeader(key, value);
+            }
+          });
+
+          res.status(response.status).send(response.data);
+          return; 
+        } catch (err: any) {
+          console.error(
+            `[Passive] Server ${server.url} failed:`,
+            err.code || err.message,
+          );
+
+          lastError = err;
+
+          // Passive failure detection
+          if (
+            err.code === "ECONNREFUSED" ||
+            err.code === "ECONNRESET" ||
+            err.code === "ETIMEDOUT" ||
+            err.code === "ENOTFOUND"
+          ) {
+            this.healthCheck.handleFailure(server);
+          }
+
+          retries++;
+        }
       }
+
+      console.error("[LB] All retries failed:", lastError?.message);
+      res.status(500).send("All backend servers are unavailable");
     });
   }
 
