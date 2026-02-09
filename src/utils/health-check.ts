@@ -17,7 +17,10 @@ export class HealthCheck {
     this.healthyServers = healthyServers;
 
     // Read interval from config (default: 10 seconds)
-    this.intervalMs = Config?.config?.health_check_interval ?? 10000;
+    this.intervalMs = (config?.health_check_interval ?? 10) * 1000;
+
+    // Initial population
+    this.updateHealthyServers();
   }
 
   public updateHealthyServers(): void {
@@ -29,21 +32,16 @@ export class HealthCheck {
       }
     }
   }
-  public handleFailure(server: any): void {
-    // Mark server unhealthy
-    if (server.setStatus) {
-      server.setStatus("UNHEALTHY");
-    }
 
-    // Remove from healthy list (preserve reference)
+  public handleFailure(server: BackendServerDetails): void {
+    server.setStatus(BEServerHealth.UNHEALTHY);
+
     const index = this.healthyServers.indexOf(server);
     if (index !== -1) {
       this.healthyServers.splice(index, 1);
     }
 
-    console.log(
-      `[Passive] Server ${server.domain || server.url} marked UNHEALTHY`,
-    );
+    console.log(`[Passive] Server ${server.url} marked UNHEALTHY`);
   }
 
   private async checkOnce(): Promise<void> {
@@ -52,7 +50,7 @@ export class HealthCheck {
         try {
           await server.ping();
         } catch {
-          // Ignore ping errors, status will reflect failure
+          // ignore
         }
       }),
     );
@@ -61,28 +59,15 @@ export class HealthCheck {
   }
 
   start(): void {
-    // Prevent double start
     if (this.intervalId) return;
 
-    this.intervalId = setInterval(async () => {
-      try {
-        // 1️⃣ Ping all servers in parallel
-        await Promise.all(this.allServers.map((server) => server.ping()));
+    // Run immediately
+    this.checkOnce().catch(() => {});
 
-        // 2️⃣ Update healthyServers array in-place
-        this.healthyServers.length = 0;
-
-        for (const server of this.allServers) {
-          const status = server.getStatus();
-          if (status === BEServerHealth.HEALTHY) {
-            this.healthyServers.push(server);
-          }
-        }
-
-        this.checkOnce().catch(() => {});
-      } catch (err) {
+    this.intervalId = setInterval(() => {
+      this.checkOnce().catch((err) => {
         console.error("Health check error:", err);
-      }
+      });
     }, this.intervalMs);
   }
 

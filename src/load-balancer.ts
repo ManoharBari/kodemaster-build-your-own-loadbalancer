@@ -19,12 +19,12 @@ export class LBServer {
   private healthCheck: HealthCheck;
 
   constructor(config: Config, servers: BackendServerDetails[]) {
-    this.config = Config.load();
+    this.config = config;
     this.app = express();
     const rawConfig = Config.getConfig();
 
     this.backendServers = servers;
-    this.healthyServers =  [...this.backendServers];
+    this.healthyServers = [];
 
     this.healthCheck = new HealthCheck(
       this.backendServers,
@@ -36,25 +36,30 @@ export class LBServer {
     this.lbAlgo = createLbAlgorithm(rawConfig.lbAlgo, this.healthyServers);
     this.setupProxyHandler();
 
-    switch (rawConfig.lbAlgo) {
-      case "rr":
-        this.lbAlgo = new RoundRobin(servers);
-        break;
+    // switch (rawConfig.lbAlgo) {
+    //   case "rr":
+    //     this.lbAlgo = new RoundRobin(servers);
+    //     break;
 
-      case "wrr":
-        this.lbAlgo = new WeightedRoundRobin(servers);
-        break;
+    //   case "wrr":
+    //     this.lbAlgo = new WeightedRoundRobin(servers);
+    //     break;
 
-      case "rand":
-        // this.lbAlgo = new RandomAlgorithm();
-        break;
+    //   case "rand":
+    //     // this.lbAlgo = new RandomAlgorithm();
+    //     break;
 
-      default:
-        throw new Error("Invalid load balancing algorithm");
-    }
+    //   default:
+    //     throw new Error("Invalid load balancing algorithm");
+    // }
 
-    this.backendServers = this.config.backendServers.map(
-      (serverConfig) => new BackendServerDetails(serverConfig.url),
+    // this.backendServers = this.config.backendServers.map(
+    //   (serverConfig) => new BackendServerDetails(serverConfig.url),
+    // );
+
+    console.log(
+      "Healthy servers:",
+      this.healthyServers.map((s) => s.url),
     );
 
     console.log(
@@ -112,7 +117,7 @@ export class LBServer {
           });
 
           res.status(response.status).send(response.data);
-          return; 
+          return;
         } catch (err: any) {
           console.error(
             `[Passive] Server ${server.url} failed:`,

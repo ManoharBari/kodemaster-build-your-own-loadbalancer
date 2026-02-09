@@ -11,21 +11,13 @@ export class RoundRobin implements ILbAlgorithm {
   }
 
   nextServer(): BackendServerDetails {
-    // 1️⃣ Only pick healthy servers
-    const healthyServers = this.servers.filter(
-      (server) => server.getStatus() === BEServerHealth.HEALTHY,
-    );
-
-    // 2️⃣ If none are healthy → crash loudly
-    if (healthyServers.length === 0) {
+    if (this.servers.length === 0) {
       throw new Error("No healthy backend servers available");
     }
 
-    // 3️⃣ Pick the next server in round-robin order
-    const server = healthyServers[this.currentIndex % healthyServers.length];
-
-    // 4️⃣ Move index forward for next request
-    this.currentIndex++;
+    const server = this.servers[this.currentIndex];
+    this.currentIndex =
+      (this.currentIndex + 1) % this.servers.length;
 
     return server;
   }
