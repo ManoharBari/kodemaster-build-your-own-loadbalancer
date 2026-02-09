@@ -4,5 +4,10 @@
   "be_servers": [
     { "domain": "http://localhost:8081", "weight": 1 },
     { "domain": "http://localhost:8082", "weight": 1 }
-  ]
+  ],
+  "ssl": {
+    "enabled": true,
+    "key_path": "./key.pem",
+    "cert_path": "./cert.pem"
+  }
 }

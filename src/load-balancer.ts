@@ -8,6 +8,9 @@ import { RoundRobin } from "./lb-algos/rr";
 import { WeightedRoundRobin } from "./lb-algos/wrr";
 import { HealthCheck } from "./utils/health-check";
 import { createLbAlgorithm } from "./lb-algos/algorithm-factory";
+import http from "node:http";
+import https from "node:https";
+import fs from "node:fs";
 
 export class LBServer {
   public app: Express;
@@ -51,13 +54,37 @@ export class LBServer {
     this.statsInterval = setInterval(() => {
       this.printStats();
     }, 1000);
-    
-    this.server = this.app.listen(this.config.lbPort, () => {
-      console.log(`🚀 Load Balancer running on port ${this.config.lbPort}`);
-      console.log(
-        `📊 Managing ${this.backendServers.length} backend server(s)`,
-      );
-    });
+
+    const sslConfig = this.config.ssl;
+
+    if (sslConfig?.enabled) {
+      const key = fs.readFileSync(sslConfig.key_path);
+      const cert = fs.readFileSync(sslConfig.cert_path);
+
+      this.server = https
+        .createServer({ key, cert }, this.app)
+        .listen(this.config.lbPort, () => {
+          console.log("🔒 HTTPS enabled");
+          console.log(
+            `🚀 Load Balancer running on https://localhost:${this.config.lbPort}`,
+          );
+          console.log(
+            `📊 Managing ${this.backendServers.length} backend server(s)`,
+          );
+        });
+    } else {
+      this.server = http
+        .createServer(this.app)
+        .listen(this.config.lbPort, () => {
+          console.log("🌐 HTTP mode");
+          console.log(
+            `🚀 Load Balancer running on http://localhost:${this.config.lbPort}`,
+          );
+          console.log(
+            `📊 Managing ${this.backendServers.length} backend server(s)`,
+          );
+        });
+    }
   }
 
   private printStats(): void {
