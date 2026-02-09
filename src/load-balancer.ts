@@ -21,6 +21,7 @@ export class LBServer {
   constructor(config: Config, servers: BackendServerDetails[]) {
     this.config = Config.load();
     this.app = express();
+    const rawConfig = Config.getConfig();
 
     this.backendServers = servers;
     this.healthyServers = [];
@@ -32,20 +33,20 @@ export class LBServer {
     );
 
     // Pass healthyServers, not backendServers
-    this.lbAlgo = createLbAlgorithm(this.config.lbAlgo, this.healthyServers);
+    this.lbAlgo = createLbAlgorithm(rawConfig.lbAlgo, this.healthyServers);
     this.setupProxyHandler();
 
-    switch (this.config.lbAlgo) {
+    switch (rawConfig.lbAlgo) {
       case "rr":
         this.lbAlgo = new RoundRobin(servers);
         break;
 
-      case "r":
-        // this.lbAlgo = new RandomAlgorithm();
-        break;
-
       case "wrr":
         this.lbAlgo = new WeightedRoundRobin(servers);
+        break;
+
+      case "rand":
+        // this.lbAlgo = new RandomAlgorithm();
         break;
 
       default:

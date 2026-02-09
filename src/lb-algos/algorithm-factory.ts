@@ -11,7 +11,7 @@ export function createLbAlgorithm(
       console.log("[LB] Using Round Robin algorithm");
       return new RoundRobin(healthyServers);
 
-    case "r":
+    case "rand":
       // return new RandomAlgorithm();
       throw new Error("Random not implemented yet");
 
