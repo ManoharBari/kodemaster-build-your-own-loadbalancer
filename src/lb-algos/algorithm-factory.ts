@@ -8,18 +8,21 @@ export function createLbAlgorithm(
 ): ILbAlgorithm {
   switch (algoName) {
     case "rr":
+      console.log("[LB] Using Round Robin algorithm");
       return new RoundRobin(healthyServers);
-      throw new Error("Round Robin not implemented yet");
 
     case "r":
       // return new RandomAlgorithm();
       throw new Error("Random not implemented yet");
 
     case "wrr":
+      console.log("[LB] Using Weighted Round Robin algorithm");
       return new WeightedRoundRobin(healthyServers);
-      throw new Error("WeightedRoundRobin not implemented yet");
 
     default:
-      throw new Error("Unknown load balancing algorithm");
+      console.warn(
+        `[LB] Unknown algorithm '${algoName}', falling back to Round Robin`,
+      );
+      return new RoundRobin(healthyServers);
   }
 }

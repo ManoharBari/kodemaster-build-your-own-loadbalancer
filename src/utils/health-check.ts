@@ -32,7 +32,7 @@ export class HealthCheck {
   public handleFailure(server: any): void {
     // Mark server unhealthy
     if (server.setStatus) {
-      server.setStatus("unhealthy");
+      server.setStatus("UNHEALTHY");
     }
 
     // Remove from healthy list (preserve reference)
