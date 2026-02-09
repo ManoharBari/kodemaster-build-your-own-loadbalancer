@@ -17,6 +17,7 @@ export class LBServer {
   private lbAlgo!: ILbAlgorithm;
   private healthyServers: BackendServerDetails[];
   private healthCheck: HealthCheck;
+  private statsInterval?: NodeJS.Timer;
 
   constructor(config: Config, servers: BackendServerDetails[]) {
     this.config = config;
@@ -36,32 +37,6 @@ export class LBServer {
     this.lbAlgo = createLbAlgorithm(rawConfig.lbAlgo, this.healthyServers);
     this.setupProxyHandler();
 
-    // switch (rawConfig.lbAlgo) {
-    //   case "rr":
-    //     this.lbAlgo = new RoundRobin(servers);
-    //     break;
-
-    //   case "wrr":
-    //     this.lbAlgo = new WeightedRoundRobin(servers);
-    //     break;
-
-    //   case "rand":
-    //     // this.lbAlgo = new RandomAlgorithm();
-    //     break;
-
-    //   default:
-    //     throw new Error("Invalid load balancing algorithm");
-    // }
-
-    // this.backendServers = this.config.backendServers.map(
-    //   (serverConfig) => new BackendServerDetails(serverConfig.url),
-    // );
-
-    console.log(
-      "Healthy servers:",
-      this.healthyServers.map((s) => s.url),
-    );
-
     console.log(
       `✅ Initialized ${this.backendServers.length} backend server(s)`,
     );
@@ -72,12 +47,32 @@ export class LBServer {
 
   public init(): void {
     this.healthCheck.start();
+
+    this.statsInterval = setInterval(() => {
+      this.printStats();
+    }, 1000);
+    
     this.server = this.app.listen(this.config.lbPort, () => {
       console.log(`🚀 Load Balancer running on port ${this.config.lbPort}`);
       console.log(
         `📊 Managing ${this.backendServers.length} backend server(s)`,
       );
     });
+  }
+
+  private printStats(): void {
+    console.clear();
+
+    console.log("📊 Load Balancer – Live Stats\n");
+
+    const stats = this.backendServers.map((server) => ({
+      URL: server.url,
+      Status: server.getStatus(),
+      Requests: server.requestsServedCount,
+      Weight: server.serverWeight,
+    }));
+
+    console.table(stats);
   }
 
   private setupProxyHandler(): void {
