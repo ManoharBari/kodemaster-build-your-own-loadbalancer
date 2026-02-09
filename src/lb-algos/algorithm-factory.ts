@@ -1,4 +1,5 @@
 import { ILbAlgorithm } from "./lb-algo.interface";
+import { RoundRobin } from "./rr";
 import { WeightedRoundRobin } from "./wrr";
 
 export function createLbAlgorithm(
@@ -7,7 +8,7 @@ export function createLbAlgorithm(
 ): ILbAlgorithm {
   switch (algoName) {
     case "rr":
-      // return new RoundRobinAlgorithm();
+      return new RoundRobin(healthyServers);
       throw new Error("Round Robin not implemented yet");
 
     case "r":
@@ -15,7 +16,7 @@ export function createLbAlgorithm(
       throw new Error("Random not implemented yet");
 
     case "wrr":
-      //   return new WeightedRoundRobin(servers);
+      return new WeightedRoundRobin(healthyServers);
       throw new Error("WeightedRoundRobin not implemented yet");
 
     default:
