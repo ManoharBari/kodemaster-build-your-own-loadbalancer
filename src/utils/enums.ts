@@ -10,5 +10,5 @@ export enum BEServerHealth {
   /**
    * Server is unhealthy and should not receive requests
    */
-  UNHEALTHY = 'unhealthy'
+  UNHEALTHY = 'UNHEALTHY'
 }

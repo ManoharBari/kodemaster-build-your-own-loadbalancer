@@ -18,7 +18,7 @@ export class LBServer {
   private healthyServers: BackendServerDetails[];
   private healthCheck: HealthCheck;
 
-  constructor(config: any, servers: BackendServerDetails[]) {
+  constructor(config: Config, servers: BackendServerDetails[]) {
     this.config = Config.load();
     this.app = express();
 
@@ -32,10 +32,10 @@ export class LBServer {
     );
 
     // Pass healthyServers, not backendServers
-    this.lbAlgo = createLbAlgorithm(config.lbAlgo, this.healthyServers);
+    this.lbAlgo = createLbAlgorithm(this.config.lbAlgo, this.healthyServers);
     this.setupProxyHandler();
 
-    switch (config.lbAlgo) {
+    switch (this.config.lbAlgo) {
       case "round-robin":
         this.lbAlgo = new RoundRobin(servers);
         break;
