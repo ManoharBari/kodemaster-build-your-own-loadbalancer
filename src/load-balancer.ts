@@ -99,20 +99,20 @@ export class LBServer {
           }
         });
         res.status(response.status).send(response.data);
-      } catch (error: any) {
-        console.error(`Passive failure: ${this.server.url}`, error.code);
+      } catch (err: any) {
+        console.error("[Passive] Proxy error:", err.code || err.message);
 
-        const isNetworkError =
-          !error.response &&
-          ["ECONNREFUSED", "ECONNRESET", "ENOTFOUND", "ETIMEDOUT"].includes(
-            error.code,
-          );
-
-        if (isNetworkError) {
+        // Treat as fatal network error
+        if (
+          err.code === "ECONNREFUSED" ||
+          err.code === "ECONNRESET" ||
+          err.code === "ETIMEDOUT" ||
+          err.code === "ENOTFOUND"
+        ) {
           this.healthCheck.handleFailure(this.server);
         }
 
-        return res.status(502).send("Bad gateway");
+        res.status(502).send("Bad Gateway");
       }
     });
   }

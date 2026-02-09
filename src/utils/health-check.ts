@@ -29,13 +29,20 @@ export class HealthCheck {
       }
     }
   }
-  public handleFailure(server: BackendServerDetails) {
-    console.log(`UNHEALTHY: Passive failure on ${server.url}`);
+  public handleFailure(server: any): void {
+    // Mark server unhealthy
+    if (server.setStatus) {
+      server.setStatus("unhealthy");
+    }
 
-    server.setStatus(BEServerHealth.UNHEALTHY);
+    // Remove from healthy list (preserve reference)
+    const index = this.healthyServers.indexOf(server);
+    if (index !== -1) {
+      this.healthyServers.splice(index, 1);
+    }
 
-    this.healthyServers = this.healthyServers.filter(
-      (s) => s.url !== server.url,
+    console.log(
+      `[Passive] Server ${server.domain || server.url} marked UNHEALTHY`,
     );
   }
 
