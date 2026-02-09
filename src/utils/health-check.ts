@@ -16,11 +16,13 @@ export class HealthCheck {
     this.allServers = allServers;
     this.healthyServers = healthyServers;
 
-    // Read interval from config (default: 10 seconds)
+    // Default: 10 seconds
     this.intervalMs = (config?.health_check_interval ?? 10) * 1000;
 
-    // Initial population
-    this.updateHealthyServers();
+    // IMPORTANT:
+    // Assume all servers healthy at startup
+    this.healthyServers.length = 0;
+    this.healthyServers.push(...this.allServers);
   }
 
   public updateHealthyServers(): void {
@@ -50,7 +52,7 @@ export class HealthCheck {
         try {
           await server.ping();
         } catch {
-          // ignore
+          // ping() should update status internally
         }
       }),
     );
