@@ -24,7 +24,7 @@ export class LBServer {
     const rawConfig = Config.getConfig();
 
     this.backendServers = servers;
-    this.healthyServers = [];
+    this.healthyServers =  [...this.backendServers];
 
     this.healthCheck = new HealthCheck(
       this.backendServers,
@@ -36,22 +36,22 @@ export class LBServer {
     this.lbAlgo = createLbAlgorithm(rawConfig.lbAlgo, this.healthyServers);
     this.setupProxyHandler();
 
-    // switch (rawConfig.lbAlgo) {
-    //   case "rr":
-    //     this.lbAlgo = new RoundRobin(servers);
-    //     break;
+    switch (rawConfig.lbAlgo) {
+      case "rr":
+        this.lbAlgo = new RoundRobin(servers);
+        break;
 
-    //   case "wrr":
-    //     this.lbAlgo = new WeightedRoundRobin(servers);
-    //     break;
+      case "wrr":
+        this.lbAlgo = new WeightedRoundRobin(servers);
+        break;
 
-    //   case "rand":
-    //     // this.lbAlgo = new RandomAlgorithm();
-    //     break;
+      case "rand":
+        // this.lbAlgo = new RandomAlgorithm();
+        break;
 
-    //   default:
-    //     throw new Error("Invalid load balancing algorithm");
-    // }
+      default:
+        throw new Error("Invalid load balancing algorithm");
+    }
 
     this.backendServers = this.config.backendServers.map(
       (serverConfig) => new BackendServerDetails(serverConfig.url),
